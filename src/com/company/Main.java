@@ -1,7 +1,6 @@
 package com.company;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -10,18 +9,51 @@ import java.util.Date;
 public class Main {
     private static int i = 0;
     private static ArrayList<AKniga> base = new ArrayList<>();
+    private static DateFormat format = new SimpleDateFormat("dd.MM.yyyy");
 
-    private static String vvod() throws Exception {
-        BufferedReader r = new BufferedReader(new InputStreamReader(System.in));
-        return r.readLine();
+    static DateFormat getFormat() {
+        return format;
+    }
+
+    private static String vvod() {
+        try {
+                BufferedReader r = new BufferedReader(new InputStreamReader(System.in));
+                String s = r.readLine();
+                if (s.equals("")) throw new Exception();
+                return s;
+        } catch (Exception e) {
+            System.out.println("Что-то не то ты ввел, приятель.");
+            return vvod();
+        }
+    }
+
+    private static Date parseDate(String s) {
+        try {
+             return format.parse(s);
+        } catch (Exception e) {
+            System.out.println("Ошибка при вводе даты! Попробуйте еще раз.");
+            return parseDate(s);
+        }
 
     }
-    private static Date parseDate() throws Exception {
-        DateFormat format = new SimpleDateFormat("dd.mm.yyyy");
-        return format.parse(vvod());
 
+    private static ArrayList<String> addPhones(){
+        ArrayList<String> phones = new ArrayList<>();
+        while (true) {
+            String phone = vvod();
+            if (phone.equals("хватит")) {
+                if (phones.size()==0) {
+                    System.out.println("Это телефонная книга, тут обязан быть хотя бы один номер");
+                    return addPhones();
+                }
+                else break;
+            }
+            phones.add(phone);
+        }
+        return phones;
     }
-    private static AKniga newData() throws Exception {
+
+    private static AKniga newData() {
         System.out.println("Введите данные новой записи");
         System.out.println("Фамилия:");
         String surname = vvod();
@@ -30,39 +62,76 @@ public class Main {
         System.out.println("Отчество:");
         String middlename = vvod();
         System.out.println("Дата рождения (в формате ДД.ММ.ГГГГ):");
-        Date birthday = parseDate();
-        System.out.println("Номер телефона (один или несколько; для прекращения ввода нажмите \"Enter\") повторно:");
-        ArrayList<String> phones = new ArrayList<>();
-        while (!vvod().isEmpty())
-        phones.add(vvod());
-        i = i+1;
-        return new AKniga(i,surname, name, middlename, birthday, phones, new Date());
+        Date birthday = parseDate(vvod());
+        System.out.println("Номер телефона (один или несколько; для прекращения ввода введите \"хватит\"):");
+        ArrayList<String> phones = addPhones();
+        System.out.println("Адрес:");
+        String address = vvod();
+        i++;
+        return new AKniga(surname, name, middlename, birthday, phones, address, new Date());
 
 
 
     }
-    private static void mainMenu() throws Exception {
-        System.out.println("МЕНЮ");
-        System.out.println("-------------------");
-        System.out.println("Выберите пункт меню путем ввода соответствующей цифры");
-        System.out.println("Добавить запись - 1");
-        System.out.println("Посмотреть имеющиеся записи - 2");
+    private static void writeBase() throws IOException {
+        BufferedWriter bw = new BufferedWriter(new FileWriter("E:/base.txt"));
+        for (AKniga a: base) {
+            bw.write(a.toFile());
+        }
 
-        int s = Integer.parseInt(vvod());
-        if (s == 1) {
-            base.add(newData());
+            bw.close();
+    }
+
+    private static void readBase() throws IOException {
+        i = 0;
+        BufferedReader br = new BufferedReader(new FileReader("E:/base.txt"));
+        String str = br.readLine();
+        br.close();
+        String[] words = str.split("%");
+        for (int j = 0; j < words.length-1; j++) {
+            String surname = words[j];
+            String name = words[++j];
+            String middlename = words[++j];
+            Date birthday = parseDate(words[++j]);
+            ArrayList<String> phones = new ArrayList<>();
+            String[] phone = words[++j].split(",");
+            phones.add(words[++j]);
+            String address = words [++j];
+            Date editDate = parseDate(words[++j]);
+            base.add(new AKniga(surname, name, middlename, birthday, phones, address, editDate));
+            i++;
         }
-        else if (s == 2) {
-            System.out.println("В базе сейчас " + i + " записей.");
-            System.out.println(base);
-        }
-        mainMenu();
 
     }
 
-    public static void main(String[] args) throws Exception {
-	// write your code here
-        mainMenu();
+
+    public static void main(String[] args) throws IOException {
+        while (true) {
+            System.out.println("МЕНЮ");
+            System.out.println("-------------------");
+            System.out.println("Выберите пункт меню путем ввода соответствующей цифры:");
+            System.out.println("Добавить запись - 1");
+            System.out.println("Посмотреть имеющиеся в базе записи - 2");
+            System.out.println("Записать базу в файл - 3");
+            System.out.println("Считать базу из файла - 4");
+            System.out.println("Закрыть программу - 5");
+
+            String s = vvod();
+            if (s.equals("1")) {
+                base.add(newData());
+            } else if (s.equals("2")) {
+                System.out.println("В базе сейчас " + i + " записей.");
+                System.out.println("Фамилия Имя Отчество Дата Рождения Телефоны Адрес Дата изменения");
+                for (AKniga b: base) {
+                    System.out.println(b.toString());
+                }
+            } else if (s.equals("3")) {
+                writeBase();
+            } else if (s.equals("4")) {
+                readBase();
+            } else if (s.equals("5")) break;
+            else System.out.println("Введен неверный символ");
+        }
 
     }
 }
