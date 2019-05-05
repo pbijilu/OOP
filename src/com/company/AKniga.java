@@ -22,7 +22,12 @@ public class AKniga {
         this.address = address;
         this.editDate = editDate;
     }
-
+    public String getSurname(){
+        return surname;
+    }
+    public Date getBirthday(){
+        return  birthday;
+    }
     @Override
     public String toString() {
         return  surname + " " + name + " " + middlename + " " +

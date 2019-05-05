@@ -4,6 +4,7 @@ import java.io.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 
 public class Main {
@@ -83,25 +84,56 @@ public class Main {
     }
 
     private static void readBase() throws IOException {
-        i = 0;
         BufferedReader br = new BufferedReader(new FileReader("E:/base.txt"));
         String str = br.readLine();
         br.close();
         String[] words = str.split("%");
+        for (String s:words
+             ) {
+            System.out.println(s);
+        }
         for (int j = 0; j < words.length-1; j++) {
             String surname = words[j];
             String name = words[++j];
             String middlename = words[++j];
             Date birthday = parseDate(words[++j]);
-            ArrayList<String> phones = new ArrayList<>();
             String[] phone = words[++j].split(",");
-            phones.add(words[++j]);
+            for (int k = 0; k < phone.length-1; k++) {
+                phone[k]= phone[k].substring(1);
+            }
+            phone[phone.length-1] = phone[phone.length-1].substring(1,phone[phone.length-1].length()-1);
+            ArrayList<String> phones = new ArrayList<>(Arrays.asList(phone));
             String address = words [++j];
             Date editDate = parseDate(words[++j]);
             base.add(new AKniga(surname, name, middlename, birthday, phones, address, editDate));
             i++;
         }
 
+    }
+
+    private static void shuffleSurname(){
+        for (int j = base.size()-1; j >= 1; j--) {
+            for (int k = 0; k < j; k++) {
+                if (base.get(k).getSurname().compareTo(base.get(k+1).getSurname())>0){
+
+                    AKniga dummy = base.get(k);
+                    base.set(k, base.get(k+1));
+                    base.set(k+1, dummy);
+                }
+            }
+        }
+    }
+
+    private static void shuffleDate(){
+        for (int j = base.size()-1; j >= 1; j--) {
+            for (int k = 0; k < j; k++) {
+                if (base.get(k).getBirthday().after(base.get(k+1).getBirthday())){
+                    AKniga dummy = base.get(k);
+                    base.set(k, base.get(k+1));
+                    base.set(k+1, dummy);
+                }
+            }
+        }
     }
 
 
@@ -122,6 +154,7 @@ public class Main {
             } else if (s.equals("2")) {
                 System.out.println("В базе сейчас " + i + " записей.");
                 System.out.println("Фамилия Имя Отчество Дата Рождения Телефоны Адрес Дата изменения");
+                shuffleSurname();
                 for (AKniga b: base) {
                     System.out.println(b.toString());
                 }
