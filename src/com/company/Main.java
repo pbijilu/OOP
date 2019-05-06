@@ -18,10 +18,10 @@ public class Main {
 
     private static String vvod() {
         try {
-                BufferedReader r = new BufferedReader(new InputStreamReader(System.in));
-                String s = r.readLine();
-                if (s.equals("")) throw new Exception();
-                return s;
+            BufferedReader r = new BufferedReader(new InputStreamReader(System.in));
+            String s = r.readLine();
+            if (s.equals("")) throw new Exception();
+            return s;
         } catch (Exception e) {
             System.out.println("Что-то не то ты ввел, приятель.");
             return vvod();
@@ -30,7 +30,7 @@ public class Main {
 
     private static Date parseDate(String s) {
         try {
-             return format.parse(s);
+            return format.parse(s);
         } catch (Exception e) {
             System.out.println("Ошибка при вводе даты! Попробуйте еще раз.");
             return parseDate(s);
@@ -80,7 +80,7 @@ public class Main {
             bw.write(a.toFile());
         }
 
-            bw.close();
+        bw.close();
     }
 
     private static void readBase() throws IOException {
@@ -89,7 +89,7 @@ public class Main {
         br.close();
         String[] words = str.split("%");
         for (String s:words
-             ) {
+        ) {
             System.out.println(s);
         }
         for (int j = 0; j < words.length-1; j++) {
@@ -136,6 +136,59 @@ public class Main {
         }
     }
 
+    private static void searchName(){
+        System.out.println("Введите имя:");
+        String s = vvod();
+        for (AKniga a: base) {
+            if (a.getName().equals(s))
+                System.out.println(a.toString());
+        }
+    }
+
+    private static void searchYear(){
+        System.out.println("Введите год рождения:");
+        String s = vvod();
+        for (AKniga a: base){
+            if (a.getBirthday().getYear()+1900==Integer.parseInt(s)){
+                System.out.println(a.toString());
+            }
+        }
+    }
+
+    private static void deleteBase(){
+        System.out.println("Выберите, что вы хотите удалить:");
+        System.out.println("Удалить все - 1");
+        System.out.println("Удалить значения по имени - 2");
+        System.out.println("Удалить значения по дате изменения - 3");
+        String s = vvod();
+        if (s.equals("1")){
+           while (base.size()!=0) {
+                base.remove(0);
+                i--;
+            }
+        } else if (s.equals("2")){
+            System.out.println("Введите имя:");
+            s = vvod();
+            for (int j = 0; j<base.size(); j++) {
+                if (base.get(j).getName().equals(s)){
+                    base.remove(base.get(j));
+                    i--;
+                    j--;
+                }
+            }
+        } else if (s.equals("3")){
+            System.out.println("Введите дату:");
+            Date d = parseDate(vvod());
+            for (int j = 0; j < base.size(); j++) {
+                if (base.get(j).getEditDate().equals(d)){
+                    base.remove(base.get(j));
+                    i--;
+                    j--;
+                }
+            }
+        }
+    }
+
 
     public static void main(String[] args) throws IOException {
         while (true) {
@@ -144,9 +197,11 @@ public class Main {
             System.out.println("Выберите пункт меню путем ввода соответствующей цифры:");
             System.out.println("Добавить запись - 1");
             System.out.println("Посмотреть имеющиеся в базе записи - 2");
-            System.out.println("Записать базу в файл - 3");
-            System.out.println("Считать базу из файла - 4");
-            System.out.println("Закрыть программу - 5");
+            System.out.println("Найти запись - 3");
+            System.out.println("Удалить запись - 4");
+            System.out.println("Записать базу в файл - 5");
+            System.out.println("Считать базу из файла - 6");
+            System.out.println("Закрыть программу - 7");
 
             String s = vvod();
             if (s.equals("1")) {
@@ -155,14 +210,29 @@ public class Main {
                 System.out.println("В базе сейчас " + i + " записей.");
                 System.out.println("Фамилия Имя Отчество Дата Рождения Телефоны Адрес Дата изменения");
                 shuffleSurname();
-                for (AKniga b: base) {
+                for (AKniga b : base) {
                     System.out.println(b.toString());
                 }
             } else if (s.equals("3")) {
-                writeBase();
+                System.out.println("Поиск по:");
+                System.out.println("Имени - 1");
+                System.out.println("Году рождения - 2");
+                System.out.println("Назад - любой другой символ");
+
+                s = vvod();
+                if (s.equals("1")) {
+                    searchName();
+                }
+                if (s.equals("2")) {
+                    searchYear();
+                }
             } else if (s.equals("4")) {
+                deleteBase();
+            } else if (s.equals("5")) {
+                writeBase();
+            } else if (s.equals("6")) {
                 readBase();
-            } else if (s.equals("5")) break;
+            } else if (s.equals("7")) break;
             else System.out.println("Введен неверный символ");
         }
 

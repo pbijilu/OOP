@@ -28,6 +28,12 @@ public class AKniga {
     public Date getBirthday(){
         return  birthday;
     }
+    public String getName(){
+        return name;
+    }
+    public Date getEditDate(){
+        return editDate;
+    }
     @Override
     public String toString() {
         return  surname + " " + name + " " + middlename + " " +
